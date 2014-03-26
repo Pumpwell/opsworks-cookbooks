@@ -103,18 +103,7 @@ backend nodejs_app_servers
   <% end -%>
 <% end -%>
 
-<% if !node[:haproxy][:nodejs_backends].empty? -%>
-backend nodejs_app_servers_ssl
-  mode tcp
-  balance <%= node[:haproxy][:balance] %>
-  option redispatch
-  option ssl-hello-chk
-  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
-  <% end -%>
-<% end -%>
-
-<% if !node[:haproxy][:static_backends].empty? -%>  
+<% if !node[:haproxy][:static_backends].empty? -%>
 backend static_servers
   balance <%= node[:haproxy][:balance] %>
   option redispatch

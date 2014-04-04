@@ -15,8 +15,6 @@ global
 
 defaults
   log             global
-  mode            http
-  option          httplog
   option          dontlognull
   retries         <%= node[:haproxy][:retries] %>
   option          redispatch
@@ -27,13 +25,11 @@ defaults
   timeout connect <%= node[:haproxy][:connect_timeout] %>           # There's no reason to change this one.
   timeout http-request <%= node[:haproxy][:http_request_timeout] %>	# A complete request may never take that long.
   <% if node[:haproxy][:httpclose] %>
-  option          httpclose                                         # disable keepalive (HAProxy does not yet support the HTTP keep-alive mode)
   <% end %>
   <% if node[:haproxy][:http_server_close] %>
   option          http-server-close                                 # enable HTTP connection closing on the server side
   <% end %>
   option          abortonclose                                      # enable early dropping of aborted requests from pending queue
-  option          httpchk                                           # enable HTTP protocol to check on servers health
   <% if node[:haproxy][:enable_stats] -%>
   stats auth <%= node[:haproxy][:stats_user] %>:<%= node[:haproxy][:stats_password] %>
   stats uri <%= node[:haproxy][:stats_url] %>
@@ -42,7 +38,11 @@ defaults
 # Set up application listeners here.
 <% if !node[:haproxy][:s3_backend].nil? -%>
 backend s3_server
+  mode http
+  option httplog
+  option httpchk
   option forwardfor
+  option httpclose
   option http-server-close
   reqrep ^Host:   Host:\ <%= node[:haproxy][:s3_backend][:bucket] %>
 
@@ -51,9 +51,12 @@ backend s3_server
 
 <% if !node[:haproxy][:nodejs_backends].empty? -%>
 backend nodejs_app_servers
+  mode http
+  option httplog
   balance <%= node[:haproxy][:balance] %>
   option redispatch
   option forwardfor
+  option httpclose
   option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
   <% if node[:haproxy][:backend_mounted_at] -%>
     reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
@@ -73,7 +76,10 @@ listen controllers :9731
 <% end -%>
 
 frontend http-in
+  mode http
   bind :80
+  option httplog
+  option httpclose
 
   # all domains of node.js applications
   <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>

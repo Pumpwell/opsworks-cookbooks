@@ -67,10 +67,11 @@ frontend http-in
   bind :80
 
   # all domains of node.js applications
-
-  <% if node[:haproxy][:backend_mounted_at] -%>
-  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= node[:haproxy][:backend_mounted_at] %>
-  <% end -%>
+  <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
+      <% app_config['domains'].each do |domain| -%>
+    acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= node[:haproxy][:backend_mounted_at] %>
+      <% end -%>
+    <% end -%>
 
   # choose backend
   <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodejs_backends].empty? -%>

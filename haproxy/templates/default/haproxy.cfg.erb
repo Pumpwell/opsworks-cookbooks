@@ -67,13 +67,9 @@ frontend http-in
   bind :80
 
   # all domains of node.js applications
-  <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
-    <% app_config['domains'].each do |domain| -%>
-  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> hdr_end(host) -i <%= domain %>
-      <% if app_config['mounted_at'] -%>
-  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= app_config['mounted_at'] %>
-      <% end -%>
-    <% end -%>
+
+  <% if node[:haproxy][:backend_mounted_at] -%>
+  acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>_path path_beg <%= node[:haproxy][:backend_mounted_at] %>
   <% end -%>
 
   # choose backend
@@ -89,12 +85,6 @@ frontend http-in
     <% end -%>
   <% end -%>
 
-  <% if !node[:haproxy][:rails_backends].empty? -%>
-  default_backend rails_app_servers
-  <% elsif !node[:haproxy][:php_backends].empty? -%>
-  default_backend php_app_servers
-  <% elsif !node[:haproxy][:nodejs_backends].empty? -%>
-  default_backend nodejs_app_servers
-  <% elsif !node[:haproxy][:static_backends].empty? -%>
-  default_backend static_servers
+  <% if !node[:haproxy][:s3_backend].nil? -%>
+  default_backend s3_server
   <% end -%>

@@ -65,7 +65,6 @@ backend nodejs_app_servers
   server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
 
-<% if !node[:haproxy][:nodejs_backends].empty? -%>
 backend ws_backend
   mode http
   option httplog
@@ -77,8 +76,6 @@ backend ws_backend
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
   server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>
-
-
 
 listen controllers :9731
   balance leastconn

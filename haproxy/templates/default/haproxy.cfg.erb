@@ -73,6 +73,9 @@ backend ws_backend
   option forwardfor
   option httpclose
   option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
+  <% if node[:haproxy][:backend_mounted_at] -%>
+    reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
+  <% end -%>
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
   server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
   <% end -%>

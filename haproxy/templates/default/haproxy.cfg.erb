@@ -96,8 +96,10 @@ frontend http-in
   option httplog
   option httpclose
 
+<% if !node[:haproxy][:nodejs_backends].empty? -%>
   acl           is_websocket hdr(Upgrade) -i Websocket
   use_backend   ws_backend if is_websocket
+<% end -%>
 
   # all domains of node.js applications
   <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>

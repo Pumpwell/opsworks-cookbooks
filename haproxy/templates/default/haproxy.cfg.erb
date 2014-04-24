@@ -84,6 +84,9 @@ listen controllers :9731
   balance leastconn
   mode tcp
   option tcplog
+  option tcpka
+  timeout server 3600s
+  timeout client 3600s
 
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
   server <%= backend['name'] %> <%= backend['ip'] %>:9731 check

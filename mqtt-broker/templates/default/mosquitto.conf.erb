@@ -1,0 +1,35 @@
+<%
+options = %w{allow_anonymous autosave_interval connection_messages retained_persistence tls_version cafile certfile capath crlfile ciphers keyfile require_certificate use_identity_as_username upgrade_outgoing_qos user sys_interval store_clean_interval retry_interval queue_qos0_messages psk_file pid_file persistent_client_expiration persistence_file persistence_location persistence password_file message_size_limit max_queued_messages max_inflight_messages log_timestamp include_dir clientid_prefixes autosave_on_changes auth_plugin allow_duplicate_messages acl_file}
+bridge_options = %w{ connection address cleansession try_private username password threshold start_type round_robin keepalive_interval idle_timeout notifications notification_topic bridge_cafile bridge_capathbridge_certfile bridge_identity bridge_insecure bridge_keyfile}
+%>
+
+<% options.select{|x|node['mqtt-broker'].has_key?(x)}.each do |option| %>
+<%= option %> <%= node['mqtt-broker'][option] %>
+<% end %>
+
+log_dest stderr
+log_dest topic
+log_type error
+log_type warning
+log_type notice
+log_type information
+log_type all
+log_type debug
+
+<% node['mqtt-broker']['listeners'].each do |listener| %>
+listener <%= [listener[:port], listener[:addr]].compact.join(" ") %>
+<% end %>
+
+<% 
+node['mqtt-broker']['bridges'].each do |bridge|
+  bridge_options.select{|x|bridge.has_key?(x)}.each do |key|
+    puts "#{key} #{bridge[key]}"
+  end
+
+  bridge['topics'].each do |topic|
+    puts "topic #{topic}"
+  end
+end
+%>
+
+tls_version <%= node['mqtt-broker']['tls_version'] %>

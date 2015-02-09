@@ -46,10 +46,9 @@ template "/etc/mosquitto/mosquitto.conf" do
 end
 
 service 'mosquitto' do
-  provider Chef::Provider::Service::Upstart
   service_name 'mosquitto'
 
-  supports restart => true, status => true, reload => true
+  supports status => true, reload => true
 
   action :nothing
 end

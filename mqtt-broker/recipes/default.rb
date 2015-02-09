@@ -19,6 +19,14 @@ package "mosquitto" do
     action :install
 end
 
+include_recipe 'mosquitto::service'
+
+template "/etc/mosquitto/mosquitto.conf" do
+  source "mosquitto.conf.erb"
+  mode 0640
+  notifies :reload, "service[mosquitto]"
+end
+
 service 'mosquitto' do
-  action :start
+  action [:enable, :start]
 end

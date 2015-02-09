@@ -7,11 +7,6 @@ else
   default['mqtt-broker']['path'] = '/tmp/mosquitto'
 end
 
-default['mqtt-broker']['listeners'] = [
-  {port: 1883, addr: '127.0.0.1'},
-  {port: '8883'}
-]
-
 default['mqtt-broker']['autosave_interval'] = '1800'
 default['mqtt-broker']['allow_anonymous'] = "false"
 

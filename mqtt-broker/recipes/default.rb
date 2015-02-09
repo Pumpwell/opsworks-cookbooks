@@ -49,7 +49,7 @@ service 'mosquitto' do
   # provider service_provider
   service_name 'mosquitto'
 
-  supports restart: true, status: true, reload: true
+  supports restart => true, status => true, reload => true
 
   action :nothing
 end

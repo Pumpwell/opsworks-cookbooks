@@ -19,7 +19,7 @@ package "mosquitto" do
     action :install
 end
 
-include_recipe 'mosquitto::service'
+include_recipe 'mqtt-broker::service'
 
 template "/etc/mosquitto/mosquitto.conf" do
   source "mosquitto.conf.erb"

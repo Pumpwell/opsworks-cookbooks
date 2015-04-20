@@ -7,13 +7,13 @@
 # All rights reserved - Do Not Redistribute
 #
 
-apt_repository "mosquitto" do
-  uri "http://ppa.launchpad.net/mosquitto-dev/mosquitto-ppa/ubuntu"
-  distribution node['lsb']['codename']
-  components ["main"]
-  keyserver "keyserver.ubuntu.com"
-  key "262C4500"
-end
+#apt_repository "mosquitto" do
+#  uri "http://ppa.launchpad.net/mosquitto-dev/mosquitto-ppa/ubuntu"
+#  distribution node['lsb']['codename']
+#  components ["main"]
+#  keyserver "keyserver.ubuntu.com"
+#  key "262C4500"
+#end
 
 package "mosquitto" do
     action :install

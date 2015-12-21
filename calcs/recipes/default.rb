@@ -8,8 +8,8 @@
 #
 
 cache_dir = "/var/cache"
-tar_url = "http://sourceforge.net/projects/arma/files/armadillo-4.000.0.tar.gz"
-tar_file = tar_url.split('/').last
+tar_url = "http://sourceforge.net/projects/arma/files/armadillo-6.200.2.tar.gz"
+tar_file = "armadillo-4.000.0.tar.gz"
 tar_dir = tar_file.sub(/\.tar\.gz$/, '')
 
 case node['platform_family']
@@ -33,10 +33,6 @@ when "debian"
     package "libarpack++2-dev" do
         action :install
     end
-
-    #package "libarmadillo-dev" do
-    #    action :install
-    #end
 end
 
 directory cache_dir do
@@ -47,12 +43,18 @@ directory cache_dir do
   action      :create
 end
 
-remote_file "#{cache_dir}/#{tar_file}" do
-  source      tar_url
-  owner       "root"
-  group       "root"
-  mode        "0644"
+cookbook_file "#{tar_file}" do
+    backup false
+    path "#{cache_dir}/#{tar_file}"
+    action :create_if_missing
 end
+
+#remote_file "#{cache_dir}/#{tar_file}" do
+#  source      tar_url
+#  owner       "root"
+#  group       "root"
+#  mode        "0644"
+#end
 
 execute "extract armadillo tarball" do
   user      "root"

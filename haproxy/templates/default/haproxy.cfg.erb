@@ -91,6 +91,18 @@ listen controllers :9731
   <% node[:haproxy][:nodejs_backends].each do |backend| -%>
   server <%= backend['name'] %> <%= backend['ip'] %>:9731 check
   <% end -%>
+
+listen iridium :9741
+  balance leastconn
+  mode tcp
+  option tcplog
+  option tcpka
+  timeout server 3600s
+  timeout client 3600s
+
+  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
+  server <%= backend['name'] %> <%= backend['ip'] %>:9741 check
+  <% end -%>
 <% end -%>
 
 frontend http-in

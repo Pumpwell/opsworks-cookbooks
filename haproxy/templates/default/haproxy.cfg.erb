@@ -34,7 +34,7 @@ defaults
   stats auth <%= node[:haproxy][:stats_user] %>:<%= node[:haproxy][:stats_password] %>
   stats uri <%= node[:haproxy][:stats_url] %>
   <% end -%>
-        
+
 # Set up application listeners here.
 <% if !node[:haproxy][:s3_backend].nil? -%>
 backend s3_server
@@ -96,7 +96,6 @@ listen iridium :9741
   balance leastconn
   mode tcp
   option tcplog
-  option tcpka
   timeout server 3600s
   timeout client 3600s
 

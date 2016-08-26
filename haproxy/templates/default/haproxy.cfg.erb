@@ -49,7 +49,6 @@ backend s3_server
   server s3 <%= node[:haproxy][:s3_backend][:bucket] %>:80 weight 1 maxconn 8192 check
 <% end -%>
 
-<% if !node[:haproxy][:nodejs_backends].empty? -%>
 backend nodejs_app_servers
   mode http
   option httplog
@@ -61,9 +60,7 @@ backend nodejs_app_servers
   <% if node[:haproxy][:backend_mounted_at] -%>
     reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
   <% end -%>
-  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
-  <% end -%>
+  server ambyint 54.87.186.189:80 weight 1 maxconn <%= node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
 
 backend ws_backend
   mode http
@@ -76,9 +73,7 @@ backend ws_backend
   <% if node[:haproxy][:backend_mounted_at] -%>
     reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
   <% end -%>
-  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
-  <% end -%>
+  server ambyint 54.87.186.189:80 weight 1 maxconn <%= node[:haproxy][:maxcon_factor_nodejs_app] %> check inter <%= node[:haproxy][:check_interval] %>
 
 listen controllers :9731
   balance leastconn
@@ -88,9 +83,7 @@ listen controllers :9731
   timeout server 3600s
   timeout client 3600s
 
-  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:9731 check
-  <% end -%>
+  server ambyint 54.87.186.189:9731 check
 
 listen iridium :9741
   balance leastconn
@@ -99,10 +92,7 @@ listen iridium :9741
   timeout server 3600s
   timeout client 3600s
 
-  <% node[:haproxy][:nodejs_backends].each do |backend| -%>
-  server <%= backend['name'] %> <%= backend['ip'] %>:9741 check
-  <% end -%>
-<% end -%>
+  server ambyint 54.87.186.189:9741 check
 
 frontend http-in
   bind :80
@@ -110,30 +100,8 @@ frontend http-in
   option httplog
   option httpclose
 
-<% if !node[:haproxy][:nodejs_backends].empty? -%>
   acl           is_websocket hdr(Upgrade) -i Websocket
   use_backend   ws_backend if is_websocket
-<% end -%>
-
-  # all domains of node.js applications
-  <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
-      <% app_config['domains'].each do |domain| -%>
-    acl nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> path_beg <%= node[:haproxy][:backend_mounted_at] %>
-      <% end -%>
-    <% end -%>
-
-  # choose backend
-  <% unless node[:haproxy][:nodejs_applications].empty? || node[:haproxy][:nodejs_backends].empty? -%>
-    <% node[:haproxy][:nodejs_applications].each do |app_name, app_config| -%>
-      <% app_config['domains'].each do |domain| -%>
-        <% if app_config['mounted_at'] -%>
-  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %> nodejs_application_<%= app_name %>_domain_<%= domain %>_path
-        <% else -%>
-  use_backend nodejs_app_servers if nodejs_application_<%= app_name %>_domain_<%= domain.gsub(/[^\w.:-]/, '_') %>
-        <% end -%>
-      <% end -%>
-    <% end -%>
-  <% end -%>
 
   <% if !node[:haproxy][:s3_backend].nil? -%>
   default_backend s3_server

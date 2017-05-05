@@ -85,6 +85,15 @@ listen controllers :9731
 
   server ambyint <%= node[:haproxy][:backend_controllers_service] %>:9731 check
 
+listen iridium :9741
+  balance leastconn
+  mode tcp
+  option tcplog
+  timeout server 3600s
+  timeout client 3600s
+
+  server ambyint <%= node[:haproxy][:backend_iot_service] %>:9741 check
+
 frontend http-in
   bind :80
   mode http

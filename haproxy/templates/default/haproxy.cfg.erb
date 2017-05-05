@@ -57,10 +57,10 @@ backend nodejs_app_servers
   option forwardfor
   option httpclose
   option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
-  <% if node[:haproxy][:backend_mounted_at] -%>
-    reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
+  <% if node[:haproxy][:backend_api_mounted_at] -%>
+    reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_api_mounted_at] %>/(.*)     \1\ /\2
   <% end -%>
-  server ambyint <%= node[:haproxy][:backend_cluster_ip] %>:80 weight 16 maxconn 160 check inter <%= node[:haproxy][:check_interval] %>
+  server ambyint <%= node[:haproxy][:backend_api_service] %>:80 weight 16 maxconn 160 check inter <%= node[:haproxy][:check_interval] %>
 
 backend ws_backend
   mode http
@@ -70,10 +70,10 @@ backend ws_backend
   option forwardfor
   option httpclose
   option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
-  <% if node[:haproxy][:backend_mounted_at] -%>
-    reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_mounted_at] %>/(.*)     \1\ /\2
+  <% if node[:haproxy][:backend_api_mounted_at] -%>
+    reqrep ^([^\ :]*)\ <%= node[:haproxy][:backend_api_mounted_at] %>/(.*)     \1\ /\2
   <% end -%>
-  server ambyint <%= node[:haproxy][:backend_cluster_ip] %>:80 weight 16 maxconn 160 check inter <%= node[:haproxy][:check_interval] %>
+  server ambyint <%= node[:haproxy][:backend_api_service] %>:80 weight 16 maxconn 160 check inter <%= node[:haproxy][:check_interval] %>
 
 listen controllers :9731
   balance leastconn
@@ -83,16 +83,7 @@ listen controllers :9731
   timeout server 3600s
   timeout client 3600s
 
-  server ambyint <%= node[:haproxy][:backend_cluster_ip] %>:9731 check
-
-listen iridium :9741
-  balance leastconn
-  mode tcp
-  option tcplog
-  timeout server 3600s
-  timeout client 3600s
-
-  server ambyint <%= node[:haproxy][:backend_cluster_ip] %>:9741 check
+  server ambyint <%= node[:haproxy][:backend_controllers_service] %>:9731 check
 
 frontend http-in
   bind :80

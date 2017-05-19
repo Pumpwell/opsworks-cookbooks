@@ -75,7 +75,7 @@ backend ws_backend
   <% end -%>
   server api <%= node[:haproxy][:backend_api_service] %>:80 weight 16 maxconn 160 check inter <%= node[:haproxy][:check_interval] %>
 
-listen controller :9731
+listen controllers :9731
   balance leastconn
   mode tcp
   option tcplog
@@ -83,7 +83,7 @@ listen controller :9731
   timeout server 3600s
   timeout client 3600s
 
-  server controller <%= node[:haproxy][:backend_controller_service] %>:9731 check
+  server ambyint <%= node[:haproxy][:backend_controller_service] %>:9731 check
 
 listen iridium :9741
   balance leastconn
@@ -92,7 +92,7 @@ listen iridium :9741
   timeout server 3600s
   timeout client 3600s
 
-  server iot <%= node[:haproxy][:backend_iot_service] %>:9741 check
+  server ambyint <%= node[:haproxy][:backend_iot_service] %>:9741 check
 
 frontend http-in
   bind :80
